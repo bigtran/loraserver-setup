@@ -1,76 +1,62 @@
-# LoRa Server setup
+# LoRa Server 安装配置
 
-This repository provides an [Ansible](https://www.ansible.com) playbook to
-setup the [LoRa Server](https://www.loraserver.io/).
-project (including dependencies). With the included
-[Vagrant](https://www.vagrant.com) file, the LoRa Server can also be setup
-locally (e.g. on [VirtualBox](https://www.virtualbox.org)).
+这个repo提供了  [LoRa Server](https://www.loraserver.io/) 安装配置用的 [Ansible](https://www.ansible.com) 操作手册，包括项目所用到的一些依赖。通过 [Vagrant](https://www.vagrant.com) 文件，LoRa Server 还可以在本地部署（比如 [VirtualBox](https://www.virtualbox.org))。
 
-It will:
+包括：
 
-* Setup firewall rules (iptables)
-* Setup Mosquitto (MQTT broker) + connection credentials
-* Setup Redis
-* Setup PostgreSQL + creation of roles and databases
-* Setup [LoRa Gateway Bridge](https://www.loraserver.io/lora-gateway-bridge/)
-* Setup [LoRa Server](https://www.loraserver.io/loraserver/)
-* Setup [LoRa App Server](https://www.loraserver.io/lora-app-server/)
-* Setup [LoRa Geo Server](https://www.loraserver.io/lora-geo-server/)
-* Request a HTTPS certificate from [Let's Encrypt](https://letsencrypt.org)
+* 配置防火墙策略 firewall rules (iptables)
+* 配置MQTT代理、连接凭据 Mosquitto (MQTT broker) + connection credentials
+* 配置 Redis
+* 配置 PostgreSQL，创建数据库和用户
+* 安装配置 [LoRa Gateway Bridge](https://www.loraserver.io/lora-gateway-bridge/)
+* 安装配置 NS 网络服务器 [LoRa Server](https://www.loraserver.io/loraserver/)
+* 安装配置 AS 应用服务器 [LoRa App Server](https://www.loraserver.io/lora-app-server/)
+* 安装配置 GS 地理服务器 [LoRa Geo Server](https://www.loraserver.io/lora-geo-server/)
+* 从 [Let's Encrypt](https://letsencrypt.org) 获取 HTTPS 证书
 
-## Vagrant (local environment using VirtualBox)
+## Vagrant (使用VirtualBox的本地环境)
 
-The included `Vagrantfile` will setup an Ubuntu Xenial (16.04) virtual
-machine with the latest LoRa Server components installed. It will also forward
-the following ports to your host system:
+通过包含的 `Vagrantfile` ，可以生成一个包含了最新 LoRa Server 的 Ubuntu 16.04 的虚拟机。
+并且能转发以下端口到你的主机：
 
-* `8080`: LoRa App Server UI and API
-* `1700`: UDP listener for the packet-forwarder data
+* `8080`: LoRa App Server 应用服务器的界面和接口
+* `1700`: packet-forwarder 数据的UDP监听
 * `1883`: Mosquitto MQTT
 * `1884`: Mosquitto Websockets
 
-Note: when using Vagrant, there is no need to install Ansible (this will be
-automatically installed inside the Vagrant machine).
+Note: 使用Vagrant时，不需要安装 Ansible（自动安装到Vagrant机器）。
 
-### Requirements
+### 环境要求 Requirements
 
-When setting up the LoRa Server environment, make sure you have a recent
-version of [Vagrant](https://www.vagrantup.com) installed.
+配置LoRa Server 网络服务器环境的时候，确保
 
-Also make sure you have a recent version of [VirtualBox](https://www.virtualbox.org)
-installed, including the [VirtualBox Extension Pack](https://www.virtualbox.org/wiki/Downloads).
+* 安装了最新的[Vagrant](https://www.vagrantup.com) 。
+* 安装了 [VirtualBox](https://www.virtualbox.org)，以及 [VirtualBox Extension Pack](https://www.virtualbox.org/wiki/Downloads).
 
-### Getting started
+### 起步 Getting started
 
-1. Update `roles/loraserver/templates/loraserver.toml` so that the 
-   `network_server.band.name` matches the LoRaWAN band to use. Depending the
-   chosen band, you might also be interested in updating other network-server
-   settings listed under the `network_server.network_settings` section.
+1. 更新 `roles/loraserver/templates/loraserver.toml`，使得`network_server.band.name` 匹配 LoRaWAN 频段。
+   根据所选择的频段，同时更新 `network_server.network_settings`下的其他设置。
 
-2. Within the root of this repository execute the following command:
+2. 在本repo的根目录下，执行指令：
     
     ```bash
     vagrant up
     ```
 
-    As this will import the Vagrant box, install all requirements etc... this
-    is going to take a while.
+    这样就可以引入 Vagrant box，安装所有关联文件。
 
-3. Configure your LoRa Gateway so that it points to the IP address of your
-   computer (port `1700`).
+3. 配置基站（LoRa Gateway），让其NS指向你本机的IP，端口为 `1700`。
 
-4. Point your browser to http://localhost:8080/. As a self-signed certificate
-   is used, your browser will prompt that the certificate can't be trusted.
-   This is ok for testing.
+4. 打开浏览器，访问 http://localhost:8080/ 。（因为用的是自我签名的证书，浏览器可能会提示证书不被信任，不影响测试）。
 
-5. For updating your Vagrant environment (e.g. updating the configuration or
-   to upgrade installed packages, execute the following command:
+5. 更新 Vagrant 环境（例如：更新配置文件、安装包，执行如下指令）：
 
     ```bash
     vagrant provision
     ```
 
-6. Other useful commands:
+6. 其他有用指令：
 
    ```bash
    # stop the vagrant machine
@@ -86,24 +72,19 @@ installed, including the [VirtualBox Extension Pack](https://www.virtualbox.org/
    vagrant destroy
    ```
 
-## Remote deployment
+## 远程部署
 
-This playbook has been tested on 
-[DigitalOcean.com](https://m.do.co/c/6cd86e9f1cb8) but should also work on
-bare-metal, AWS, ...
+本手册在 [DigitalOcean.com](https://m.do.co/c/6cd86e9f1cb8) 上测试过，bare-metal, AWS, ...应该也没问题。
 
-Don't have a DigitalOcean account yet? Use
-[this](https://m.do.co/c/6cd86e9f1cb8) link and get $10 in credits for free :-)
+### 环境要求 Requirements
 
-### Requirements
+运行Ansible Playbook的电脑，需要安装 Ansible 2.1+. 
+也可以用pip 或 brew 安装。
+* pip (`pip install ansible`)
+* Homebrew (OS X) (`brew install ansible`)
+详情具体参考 [Ansible installation guide](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 
-On the machine from where you will execute this Ansible playbook (e.g. your own
-computer), make sure you have Ansible 2.1+ installed. You can install Ansible with
-pip (`pip install ansible`) or using Homebrew (OS X) (`brew install ansible`).
-Refer to the [Ansible installation guide](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
-for more installation instructions.
-
-The Ansible playbook has been tested on the following images:
+本 Ansible playbook在下列环境下测试过:
 
 * Debian
     * Stretch (9.x)
@@ -112,51 +93,43 @@ The Ansible playbook has been tested on the following images:
     * Xenial (16.04.x LTS)
     * Bionic (18.04.x LTS)
 
-### Configuration
+### 配置 Configuration
 
-1. Create a new Ubuntu 16.04.x instance and make sure that from your own machine
-   on which Ansible is installed, you can ssh to this machine using public-key
-   authentication (e.g. `ssh user@ip`).
+1. 创建一个 Ubuntu 16.04.x 虚拟机，并且保证能安装了Ansible的主机可以远程访问 (例如： `ssh user@ip`)。
 
-2. Configure a DNS record for your target instance and wait until this record
-   resolves to your IP address. This is required in case you configured
-   LetsEncrypt. You can skip this step when not using LetsEncrypt (
-   `accept_letsencrypt_tos: False` in `single_server.yml`).
+2. 如果需要配置 LetsEncrypt，需要为目标主机配置一条DNS记录，等待 DNS记录能被解析到你的IP。
+   不用LetsEncrypt (
+   `accept_letsencrypt_tos: False` in `single_server.yml`)，可以跳过。
 
-3. Copy the `inventory.example` inside this repository to `inventory` and
-   replace `example.com` with the hostname created in step 2.
+3. 复制本repo的  `inventory.example` 到 `inventory`，并且用第二步配置的域名替换 `example.com`。
 
-4. Copy the `group_vars/single_server.example.yml` inside this repository to
-   `group_vars/single_server.yml` and change the settings where needed.
+4. 复制本repo的 `group_vars/single_server.example.yml` 到 `group_vars/single_server.yml`，按需修改配置。
 
-5. Update the LoRa Gateway Bridge, LoRa App Server and LoRa Server configuration
-   files under:
+5. 更新LoRa Gateway Bridge, LoRa App Server and LoRa Server 配置文件：
 
    * `roles/lora-gateway-bridge/templates/lora-gateway-bridge.toml`
    * `roles/lora-app-server/templates/lora-app-server.toml`
    * `roles/loraserver/templates/loraserver.toml`
 
-See also the following links for more documentation:
+更多参考，详见:
 
 * https://www.loraserver.io/lora-gateway-bridge/
 * https://www.loraserver.io/loraserver/
 * https://www.loraserver.io/lora-app-server/
 
-### Provisioning
+### 提前准备 Provisioning
 
-Run the following command from your machine to deploy LoRa Server to your
-target instance, to upgrade to the latest versions or to update the
-configuration:
+在本机运行以下指令，以部署 LoRa Server 到目标主机，以及升级到最新版本，更新最新配置：
 
 ```bash
 ansible-playbook -i inventory full_deploy.yml
 ```
 
-After the playbook has been completed, the dashboard should be accessible from
+安装完成后，管理后台可以通过以下链接访问 
 http://yourdomain.com:8080/.
 
 
-## Changelog (playbook changes)
+## 修改记录 Changelog (playbook changes)
 
 ### 2018-10-30
 
